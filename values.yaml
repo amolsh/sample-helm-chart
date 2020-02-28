@@ -1,0 +1,116 @@
+# Default values for platform-messaging.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+name: sample-helm-chart
+
+image:
+  repository: "nginx"
+  tag: latest
+  pullPolicy: IfNotPresent
+  containerPort: 80
+
+deployment:
+  replicaCount: 1
+  annotations: {} # optional, additional annotation to supports deployment
+  livenessProbe:
+    tcpSocket:
+      port: 80
+    initialDelaySeconds: 60
+    periodSeconds: 5
+    successThreshold: 1
+    timeoutSeconds: 4
+  readinessProbe:
+    tcpSocket:
+      port: 80
+    initialDelaySeconds: 0
+    timeoutSeconds: 5
+#  iam.amazonaws.com/role: "role-arn if kube2iam is deployed in cluster"
+
+podDisruptionBudget:  ## It will be applied only when replicaCount > 1
+  minAvailable: 1
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+nodeSelector: {}
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: NodePort
+  port: 80
+  annotations: {}
+  loadBalancerSourceRanges: []
+  enableHttp: true
+
+cronjob:
+   enabled: false
+   name: test-cron
+   image:
+     repository: yauritux/busybox-curl
+     tag: latest
+     pullPolicy: IfNotPresent
+   schedule: "0 5 * * SAT"
+   args:
+     - /bin/sh
+     - -c
+     - ls
+
+   failedJobsHistoryLimit: 1
+   successfulJobsHistoryLimit: 2
+   concurrencyPolicy: Forbid
+   restartPolicy: OnFailure
+
+configmap: {}
+# set required variable
+#  SERVER_PORT: 9012
+#  APP_NAME: platform-messaging
+#  SMP_AWS_DYNAMO_ENDPOINT: https://dynamodb.eu-central-1.amazonaws.com
+#  SMP_AWS_DYNAMO_REGION: eu-central-1
+#  SMP_AWS_DYNAMO_OKTA_CREDENTIALS_TABLE_NAME:
+#  SMP_AWS_DYNAMO_TOKEN_CACHE_TABLE_NAME:
+#  SMP_CONFIGURATION_HOST:
+#  SMP_CONFIGURATION_API_KEY:
+
+ingress:
+  enabled: false
+  hosts:
+    # Wildcard
+    # - test.local
+
+      ## Ingress annotations
+    ##
+  annotations:
+    ## Nginx ingress controller (default)
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    kubernetes.io/ingress.class: nginx
+
+
+  ## Ingress TLS authorisation2
+  ## Secrets must be manually created in the namespace
+  ##
+  # tls:
+  #   secretName: charts.local-tls
+
+
+updateStrategy:
+   rollingUpdate:
+     maxUnavailable: 1
+   type: RollingUpdate
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+affinity: {}
+tolerations: {}

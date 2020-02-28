@@ -1,0 +1,7 @@
+apiVersion: v2
+appVersion: "2.0"
+description: A Helm chart for SMP dxpcoreapi Service
+name: sample-helm-chart
+version: 0.1.0
+keywords:
+  - sample helm chart

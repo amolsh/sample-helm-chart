@@ -1,0 +1,37 @@
+{{- $service := .Values.service }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}
+  labels:
+{{ include "labels" . | indent 4 }}
+  annotations:
+  {{- range $key, $value := $service.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+spec:
+  type: {{ $service.type }}
+  {{- if $service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+  {{ toYaml $service.loadBalancerSourceRanges | indent 4 }}
+  {{- end }}
+  ports:
+    {{- if $service.enableHttp }}
+    - port: {{ $service.port }}
+      targetPort: {{ .Values.image.containerPort }}
+{{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}
+      nodePort: {{.Values.service.nodePort}}
+{{- end }}
+      protocol: TCP
+      name: http
+    {{- end }}
+    {{- if $service.enableHttps }}
+    - port: {{ $service.port }}
+      targetPort: {{ .Values.image.containerPort }}
+      protocol: TCP
+      name: https
+    {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ .Values.name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

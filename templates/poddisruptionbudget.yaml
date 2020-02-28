@@ -1,0 +1,17 @@
+{{- if gt (.Values.replicaCount | int) 1 }}
+{{- if .Values.podDisruptionBudget -}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.name }}
+  labels:
+{{ include "labels" . | indent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+      release: {{ .Release.Name }}
+      component: {{ .Values.name }}
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+{{- end }}
+{{- end }}
