@@ -69,15 +69,6 @@ cronjob:
    restartPolicy: OnFailure
 
 configmap: {}
-# set required variable
-#  SERVER_PORT: 9012
-#  APP_NAME: platform-messaging
-#  SMP_AWS_DYNAMO_ENDPOINT: https://dynamodb.eu-central-1.amazonaws.com
-#  SMP_AWS_DYNAMO_REGION: eu-central-1
-#  SMP_AWS_DYNAMO_OKTA_CREDENTIALS_TABLE_NAME:
-#  SMP_AWS_DYNAMO_TOKEN_CACHE_TABLE_NAME:
-#  SMP_CONFIGURATION_HOST:
-#  SMP_CONFIGURATION_API_KEY:
 
 ingress:
   enabled: false
